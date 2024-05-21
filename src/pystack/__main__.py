@@ -287,7 +287,8 @@ def process_remote(parser: argparse.ArgumentParser, args: argparse.Namespace) ->
         method=StackMethod.ALL if args.exhaustive else StackMethod.AUTO,
     ):
         native = args.native_mode != NativeReportingMode.OFF
-        print_thread(thread, native)
+        only_last_native_frames = args.native_mode == NativeReportingMode.LAST
+        print_thread(thread, native, only_last_native_frames)
 
 
 def format_psinfo_information(psinfo: Dict[str, Any]) -> str:
@@ -396,7 +397,8 @@ def process_core(parser: argparse.ArgumentParser, args: argparse.Namespace) -> N
         method=StackMethod.ALL if args.exhaustive else StackMethod.AUTO,
     ):
         native = args.native_mode != NativeReportingMode.OFF
-        print_thread(thread, native)
+        only_last_native_frames = args.native_mode == NativeReportingMode.LAST
+        print_thread(thread, native, only_last_native_frames)
 
 
 if __name__ == "__main__":  # pragma: no cover
