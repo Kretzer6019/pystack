@@ -71,7 +71,7 @@ def test_traceback_formatter_no_native():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -98,7 +98,7 @@ def test_traceback_formatter_no_frames_no_native():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -126,7 +126,7 @@ def test_traceback_formatter_no_frames_native():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
     assert lines == [
@@ -163,7 +163,7 @@ def test_traceback_formatter_no_frames_native_with_eval_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
     assert lines == [
@@ -225,7 +225,7 @@ def test_traceback_formatter_no_mergeable_native_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
     assert lines == [
@@ -294,7 +294,7 @@ def test_traceback_formatter_with_source():
     with patch("builtins.open", mock_open(read_data=source_data)), patch(
         "os.path.exists", return_value=True
     ):
-        lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+        lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -369,7 +369,7 @@ def test_traceback_formatter_native_matching_simple_eval_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
 
@@ -457,7 +457,7 @@ def test_traceback_formatter_native_matching_composite_eval_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
 
@@ -571,7 +571,7 @@ def test_traceback_formatter_native_matching_eval_frames_ignore_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
 
@@ -616,7 +616,7 @@ def test_traceback_formatter_gil_detection():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -655,7 +655,7 @@ def test_traceback_formatter_gc_detection_with_native():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -692,7 +692,7 @@ def test_traceback_formatter_gc_detection_without_native():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -738,7 +738,7 @@ def test_traceback_formatter_dropping_the_gil_detection():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -784,7 +784,7 @@ def test_traceback_formatter_taking_the_gil_detection():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -846,7 +846,7 @@ def test_traceback_formatter_native_not_matching_simple_eval_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -923,7 +923,7 @@ def test_traceback_formatter_native_not_matching_composite_eval_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
@@ -1004,7 +1004,7 @@ def test_traceback_formatter_mixed_inlined_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
 
@@ -1086,7 +1086,7 @@ def test_traceback_formatter_all_inlined_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=True, native_last=False))
 
     # THEN
 
@@ -1104,7 +1104,7 @@ def test_traceback_formatter_all_inlined_frames():
     assert lines == expected_lines
 
 
-def test_traceback_formatter_only_last_native_frames():
+def test_traceback_formatter_native_last():
     # GIVEN
 
     codes = [
@@ -1169,7 +1169,7 @@ def test_traceback_formatter_only_last_native_frames():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=True, only_last_native_frames=True))
+    lines = list(format_thread(thread, native=True, native_last=True))
 
     # THEN
 
@@ -1203,7 +1203,7 @@ def test_print_thread(capsys):
         "pystack.traceback_formatter.format_thread",
         return_value=("1", "2", "3"),
     ):
-        print_thread(thread, native=False, only_last_native_frames=False)
+        print_thread(thread, native=False, native_last=False)
 
     # THEN
 
@@ -1289,7 +1289,7 @@ def test_traceback_formatter_locals(
     with patch("builtins.open", mock_open(read_data=source_data)), patch(
         "os.path.exists", return_value=True
     ):
-        lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+        lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
     print(lines)
@@ -1327,7 +1327,7 @@ def test_traceback_formatter_thread_names():
 
     # WHEN
 
-    lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+    lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
     print(lines)
@@ -1388,7 +1388,7 @@ def test_traceback_formatter_position_infomation():
         "pystack.traceback_formatter.colored",
         side_effect=lambda x, *args, **kwargs: x,
     ) as colored_mock:
-        lines = list(format_thread(thread, native=False, only_last_native_frames=False))
+        lines = list(format_thread(thread, native=False, native_last=False))
 
     # THEN
 
