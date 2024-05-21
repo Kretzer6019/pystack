@@ -11,8 +11,10 @@ from .types import PyThread
 from .types import frame_type
 
 
-def print_thread(thread: PyThread, native: bool) -> None:
-    for line in format_thread(thread, native):
+def print_thread(
+    thread: PyThread, native: bool, only_last_native_frames: bool = False
+) -> None:
+    for line in format_thread(thread, native, only_last_native_frames):
         print(line, file=sys.stdout, flush=True)
 
 
@@ -62,7 +64,9 @@ def _are_the_stacks_mergeable(thread: PyThread) -> bool:
     return n_eval_frames == n_entry_frames
 
 
-def format_thread(thread: PyThread, native: bool) -> Iterable[str]:
+def format_thread(
+    thread: PyThread, native: bool, only_last_native_frames: bool = False
+) -> Iterable[str]:
     current_frame: Optional[PyFrame] = thread.frame
     if current_frame is None and not native:
         yield f"The frame stack for thread {thread.tid} is empty"
@@ -81,11 +85,53 @@ def format_thread(thread: PyThread, native: bool) -> Iterable[str]:
             yield from format_frame(current_frame)
             current_frame = current_frame.next
     else:
-        yield from _format_merged_stacks(thread, current_frame)
+        yield from _format_merged_stacks(thread, current_frame, only_last_native_frames)
     yield ""
 
 
 def _format_merged_stacks(
+    thread: PyThread,
+    current_frame: Optional[PyFrame],
+    only_last_native_frames: bool = False,
+) -> Iterable[str]:
+    if only_last_native_frames:
+        return _format_last_frames(thread, current_frame)
+    else:
+        return _format_all_frames(thread, current_frame)
+
+
+def _format_last_frames(
+    thread: PyThread, current_frame: Optional[PyFrame]
+) -> Iterable[str]:
+    other_frames_list: list[str] = []
+    for frame in thread.native_frames:
+        if frame_type(frame, thread.python_version) == NativeFrame.FrameType.EVAL:
+            assert current_frame is not None
+            other_frames_list = []
+            yield from format_frame(current_frame)
+            current_frame = current_frame.next
+            while current_frame and not current_frame.is_entry:
+                yield from format_frame(current_frame)
+                current_frame = current_frame.next
+            continue
+        elif frame_type(frame, thread.python_version) == NativeFrame.FrameType.IGNORE:
+            continue
+        elif frame_type(frame, thread.python_version) == NativeFrame.FrameType.OTHER:
+            function = colored(frame.symbol, "yellow")
+            other_frames_list.append(
+                f'    {colored("(C)", "blue")} File "{frame.path}",'
+                f" line {frame.linenumber},"
+                f" in {function} ({colored(frame.library, attrs=['faint'])})"
+            )
+        else:  # pragma: no cover
+            raise ValueError(
+                f"Invalid frame type: {frame_type(frame, thread.python_version)}"
+            )
+    for stringified_frame in other_frames_list:
+        yield stringified_frame
+
+
+def _format_all_frames(
     thread: PyThread, current_frame: Optional[PyFrame]
 ) -> Iterable[str]:
     for frame in thread.native_frames:
